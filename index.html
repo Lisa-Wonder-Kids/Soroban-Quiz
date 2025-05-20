@@ -1,412 +1,313 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Soroban Quiz</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Soroban Quiz – Canvas Edition</title>
   <style>
     html, body {
-      margin: 0; padding: 0;
-      width: 100vw; height: 100dvh;
+      margin: 0; padding: 0; width: 100vw; height: 100dvh; overflow: hidden;
+      background: #b3c4e7;
       font-family: sans-serif;
-      background: #b3c4e7 ;
-      overflow: hidden;
     }
-    .sidebar {
-      position: fixed;
-      top: 0; right: 0;
-      width: 40px; height: 100vh;
-      background: #99b3ff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      padding: 10px 0;
-      box-shadow: -2px 0 5px rgba(0,0,0,0.3);
-      z-index: 10001;
-    }
-    .sidebar-spacer {
-      flex: 1 1 auto;
-    }
-    .sidebar img {
-      width: 30px; height: 30px;
-      margin: 15px 0; cursor: pointer;
-      user-select: none;
-    }
-    .main-content {
-      display: flex; flex-direction: row;
-      height: 100vh; margin-right: 40px;
-    }
-    .quiz-container {
-      width: 19vw; min-width: 240px; max-width: 320px;
-      color: white;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      padding: 4px; box-sizing: border-box;
-      z-index: 2;
-      margin-left: 16px;
-    }
-    .quiz-box {
-      background: #8ca6db;
-      border-radius: 10px;
-      width: 100%;
-      box-shadow: 0 0 10px rgba(0,0,0,0.5);
-      display: flex; flex-direction: column;
-      align-items: center; color: white;
-      margin: 0;
-      padding: 12px 10px 16px 10px;
-    }
-    #quizTimer {
-      font-size: 15px;
-      font-weight: bold;
-      margin-top: 10px;
-      margin-bottom: 0;
-    }
-    .input-label { font-size: 15px; font-weight: bold; margin-bottom: 6px; width: 100%; text-align: left; margin-left: 6px; }
-    .input-section {
-      display: flex; width: 95%; align-items: center; justify-content: space-between; margin-bottom: 20px;
-    }
-    .answer-display {
-      font-size: 20px; padding: 7px; background: #fff; border-radius: 6px;
-      flex-grow: 1; margin-right: 8px; text-align: left; cursor: pointer; color: #333;
-      border: 2px solid #b993d6; transition: background 0.2s;
-    }
-    .answer-display:hover { background: #e0eaff; }
-    .send-btn {
-      font-size: 15px; padding: 10px 15px;
-      background: #668cff; color: white; border: none; border-radius: 8px; cursor: pointer;
-    }
-    .numpad {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; width: 95%;
-    }
-    .numpad button {
-      font-size: 24px; padding: 5px;
-      border-radius: 10px; border: none;
-      background: #668cff; color: white; cursor: pointer;
-      display: flex; justify-content: center; align-items: center;
-      outline: none;
-    }
-    .numpad button svg {
-      display: block;
-    }
-    .soroban-container {
-      flex: 1 1 0;
-      height: 100vh;
-      min-width: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      background: #668cff;
-    }
-    .soroban-container iframe {
-      width: 100%;
-      height: 100%;
-      max-width: 100vw;
-      max-height: 100vh;
-      border: none;
-      display: block;
-      background: #668cff;
-    }
-
-@media (max-width: 650px) {
-  .main-content {
-    flex-direction: column;
-    height: 100vh;
-    margin: 0;
-    padding: 0;
-    position: relative;
-    width: 100vw;
-    overflow: hidden;
-  }
-  .soroban-container {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    width: 100vw !important;
-    height: 100vh !important;
-    z-index: 1;
-    background: #668cff;
-    min-width: 100vw !important;
-    min-height: 100vh !important;
-    display: flex;
-    align-items: stretch;
-    justify-content: stretch;
-    padding: 0;
-    margin: 0;
-    overflow: hidden;
-  }
-  .soroban-container iframe {
-    width: 100vw !important;
-    height: 100vh !important;
-    min-width: 100vw !important;
-    min-height: 100vh !important;
-    max-width: 100vw !important;
-    max-height: 100vh !important;
-    border: none;
-    display: block;
-    background: #668cff;
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-  }
-  .quiz-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    margin: 0 auto;
-    width: 100vw;
-    max-width: 100vw;
-    min-width: 0;
-    height: auto;
-    z-index: 2;
-    background: rgba(230,240,255,0.97); /* transparent overlay */
-    border-radius: 0 0 16px 16px;
-    box-shadow: 0 2px 12px rgba(80,80,120,0.16);
-    align-items: center;
-    justify-content: flex-start;
-    padding: 10px 0 8px 0;
-  }
-  .quiz-box {
-    width: 96vw;
-    max-width: 99vw;
-    margin: 0 auto;
-    padding: 10px 3vw 12px 3vw;
-    box-sizing: border-box;
-    font-size: 14px;
-    background: transparent;
-    box-shadow: none;
-  }
-  .sidebar {
-    height: 40px;
-    width: 100vw;
-    top: 0;
-    right: 0;
-    left: 0;
-    flex-direction: row;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    z-index: 10002;
-  }
-  .sidebar img { margin: 0 10px; }
-}
-
-    /* ----------- END MOBILE OPTIMIZATION ----------- */
-
-    .rotate-overlay {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: #b3c6ff;
-      color: #000099;
-      font-size: 2rem;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-      text-align: center;
-      padding: 1em;
-      flex-direction: column;
-    }
-    @media screen and (orientation: portrait) {
-      .rotate-overlay { display: flex !important; }
-      .main-content, .sidebar {
-        filter: blur(2px);
-        pointer-events: none;
-        user-select: none;
-      }
-    }
-    .question-row {
-      width: 100%;
-      position: relative;
-      display: flex;
-      align-items: flex-start;
-      min-height: 45px;
-      margin-top: 5px;
-    }
-    .q-num {
+    #sorobanBg {
       position: absolute;
-      left: 10px;
-      top: -15px;
-      font-size: 20px;
-      font-weight: bold;
-      color: #fff;
-      padding: 4px 12px 4px 10px;
-      border-radius: 8px;
-      letter-spacing: 1px;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      display: block;
       z-index: 1;
+      background: #b3c4e7;
+      touch-action: none;
     }
-    .question-text {
-      flex: 1;
-      font-size: 35px;
-      font-weight: bold;
-      text-align: center;
-      padding-top: 2px;
-    }
-    #fullscreenBtn,
-    #exitFullscreenBtn {
-      width: 30px;
-      height: 30px;
-      cursor: pointer;
+    #quizPanel {
       position: absolute;
-      bottom: 85px;
-      right: 5px;
-      z-index: 10002;
-      display: none;
+      top: 0; left: 0;
+      width: clamp(240px, 20vw, 360px);
+      height: 100vh;
+      background: rgba(140,166,219,0.94);
+      color: #fff;
+      z-index: 2;
+      display: flex; flex-direction: column;
+      padding: 1rem; box-sizing: border-box; overflow-y: auto;
+    }
+    #fullscreenBtn {
+      align-self: flex-end; background: transparent; border: none; font-size: 1.5rem;
+      cursor: pointer; color: #fff; margin-bottom: 0.5rem;
+    }
+    #quizContent { flex: 1; display: flex; flex-direction: column; gap: 1rem; }
+    .question { display: flex; align-items: center; gap: 0.5rem; }
+    #qNum { background: #668cff; padding: 0.3rem 0.8rem; border-radius: 0.3rem; font-weight: bold; }
+    #qText { flex: 1; text-align: center; font-size: 1.5rem; font-weight: bold; margin-left: 0.5rem; }
+    .input-label { font-weight: bold; }
+    .inputArea { display: flex; gap: 0.5rem; align-items: center; }
+    #answerDisplay { flex: 1; background: #fff; color: #333; text-align: right; padding: 0.5rem; border: 2px solid #b993d6; border-radius: 0.4rem; font-size: 1.2rem; cursor: pointer; }
+    #sendBtn { background: #668cff; border: none; color: #fff; padding: 0.5rem 1rem; border-radius: 0.4rem; cursor: pointer; font-size: 1rem; }
+    #numpad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; }
+    #numpad button { background: #668cff; border: none; color: #fff; padding: 0.6rem; border-radius: 0.4rem; font-size: 1.2rem; cursor: pointer; }
+    #quizTimer { text-align: center; font-weight: bold; margin-top: auto; }
+    @media (max-width: 1024px) { #quizPanel { width: clamp(200px, 30vw, 340px); } #qText { font-size: 1.3rem; } }
+    @media (max-width: 768px) {
+      #quizPanel { position: fixed; bottom: 0; left: 0; width: 100vw; max-height: 45vh; padding: 0.5rem; }
+      #qText { font-size: 1.2rem; }
+      #numpad button { font-size: 1rem; padding: 0.5rem; }
+      #sorobanBg { height: 60vh !important; }
     }
   </style>
 </head>
 <body>
- <div class="rotate-overlay">
-  <video id="rotateVideo" width="320" height="240" autoplay loop muted playsinline>
-    <source src="video.mp4" type="video/mp4">
-  </video>
-  <span style="font-size:1.2rem;color:#445;"></span>
-</div>
-
-  <div class="sidebar">
-    <img id="backBtn" src="back.png" alt="Back" title="Go Back" />
-    <div class="sidebar-spacer"></div>
-    <img id="fullscreenBtn" src="full.png" title="Fullscreen" style="display:inline;" />
-    <img id="exitFullscreenBtn" src="close.png" title="Exit Fullscreen" style="display:none;" />
-  </div>
-
-  <div class="main-content">
-    <div class="quiz-container">
-      <div class="quiz-box">
-        <div class="question-row">
-          <div class="q-num" id="qNum">Q1:</div>
-          <div class="question-text" id="questionText">9 × 25 =</div>
-        </div>
-        <label class="input-label">Answer</label>
-        <div class="input-section">
-          <div class="answer-display" id="currentInput">= 0</div>
-          <button class="send-btn" onclick="submitAnswer()">Send</button>
-        </div>
-        <div class="numpad" id="numpad"></div>
-        <div id="quizTimer">Time Left: 10:00</div>
+  <canvas id="sorobanBg"></canvas>
+  <div id="quizPanel">
+    <button id="fullscreenBtn" title="Toggle Fullscreen">⛶</button>
+    <div id="quizContent">
+      <div class="question">
+        <div id="qNum">Q1</div>
+        <div id="qText">9 × 25 =</div>
       </div>
-    </div>
-    <div class="soroban-container">
-      <iframe id="sorobanFrame" src="soroban.html" allow="fullscreen"></iframe>
+      <div>
+        <div class="input-label">Answer</div>
+        <div class="inputArea">
+          <div id="answerDisplay">0</div>
+          <button id="sendBtn">Send</button>
+        </div>
+      </div>
+      <div id="numpad"></div>
+      <div id="quizTimer">Time Left: 10:00</div>
     </div>
   </div>
-<script>
-  // =============== SIDEBAR FULLSCREEN/BACK LOGIC ====================
-  const fullscreenBtn = document.getElementById("fullscreenBtn");
-  const exitFullscreenBtn = document.getElementById("exitFullscreenBtn");
-  const elem = document.documentElement;
-
-  function openFullscreen() {
-    if (elem.requestFullscreen) { elem.requestFullscreen(); }
-    else if (elem.webkitRequestFullscreen) { elem.webkitRequestFullscreen(); }
-    else if (elem.msRequestFullscreen) { elem.msRequestFullscreen(); }
-  }
-  function closeFullscreen() {
-    if (document.exitFullscreen) { document.exitFullscreen(); }
-    else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); }
-    else if (document.msExitFullscreen) { document.msExitFullscreen(); }
-  }
-  document.addEventListener("fullscreenchange", toggleFullscreenButtons);
-  document.addEventListener("webkitfullscreenchange", toggleFullscreenButtons);
-  document.addEventListener("msfullscreenchange", toggleFullscreenButtons);
-  function toggleFullscreenButtons() {
-    const isFull = document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
-    fullscreenBtn.style.display = isFull ? "none" : "inline";
-    exitFullscreenBtn.style.display = isFull ? "inline" : "none";
-  }
-  fullscreenBtn.onclick = openFullscreen;
-  exitFullscreenBtn.onclick = closeFullscreen;
-  document.getElementById("backBtn").onclick = function() {
-    if (window.history.length > 1) window.history.back();
-    else alert("No previous page to go back to.");
-  };
-
-  // =============== QUIZ LOGIC ====================
-  const QUESTIONS = [
-    { q: '9 × 25', a: '225' },
-    { q: '120 + 4', a: '124' },
-    { q: '250 - 10', a: '240' },
-    { q: '13 + 17', a: '30' },
-    { q: '5 × 9', a: '45' },
-    { q: '90 - 40', a: '50' },
-    { q: '3 + 4 + 2', a: '9' },
-    { q: '100 + 23', a: '123' },
-    { q: '80 - 15', a: '65' },
-    { q: '5 × 6', a: '30' }
-  ];
-  let currentIndex = 0, answers = [], currentInput = '', inputLocked = false, timerInterval = null, timeLeft = 600;
-  const currentInputDisplay = document.getElementById('currentInput');
-  const quizTimer = document.getElementById('quizTimer');
-
-  function startQuiz() {
-    currentIndex = 0; answers = []; currentInput = ''; inputLocked = false;
-    loadQuestion(); updateTimer();
-    timerInterval = setInterval(() => {
-      timeLeft--; updateTimer();
-      if (timeLeft <= 0) finishQuiz();
-    }, 1000);
-  }
-  function updateTimer() {
-    const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-    const s = (timeLeft % 60).toString().padStart(2, '0');
-    quizTimer.textContent = `Time Left: ${m}:${s}`;
-  }
-  function loadQuestion() {
-    const q = QUESTIONS[currentIndex];
-    document.getElementById('qNum').textContent = `Q${currentIndex + 1}:`;
-    document.getElementById('questionText').textContent = `${q.q} =`;
-    currentInput = '';
-    inputLocked = false;
-    currentInputDisplay.textContent = '= 0 ';
-  }
-
-  function appendDigit(d) {
-    if (inputLocked) return;
-    if (d === 'C') currentInput = '';
-    else if (d === 'BACK') currentInput = currentInput.slice(0, -1);
-    else currentInput += d;
-    currentInputDisplay.textContent = `= ${currentInput || '0'} `;
-  }
-  function submitAnswer() {
-    if (inputLocked || currentInput === '') return;
-    inputLocked = true;
-    const q = QUESTIONS[currentIndex];
-    answers.push({ question: q.q, correct: q.a, user: currentInput });
-    currentIndex++;
-    if (currentIndex < QUESTIONS.length) setTimeout(loadQuestion, 200);
-    else finishQuiz();
-  }
-  function finishQuiz() {
-    clearInterval(timerInterval);
-    localStorage.setItem('sorobanResults', JSON.stringify(answers));
-    location.href = 'results.html';
-  }
-
-  // Numpad with SVG Backspace
-  const pad = ['0','1','2','3','4','5','6','7','8','9','C','BACK'];
-  const padWrap = document.getElementById('numpad');
-  pad.forEach(d => {
-    const btn = document.createElement('button');
-    if (d === 'BACK') {
-      // SVG closely matching your image
-      btn.innerHTML = `
-        <svg width="32" height="32" viewBox="0 0 32 32">
-          <g>
-            <path d="M6 16 L14 8 H26 Q28 8 28 10 V22 Q28 24 26 24 H14 L6 16 Z" 
-                  fill="none" stroke="white" stroke-width="2.5" stroke-linejoin="round"/>
-            <line x1="17" y1="13" x2="23" y2="19" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-            <line x1="23" y1="13" x2="17" y2="19" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-          </g>
-        </svg>
-      `;
-      btn.title = "Backspace";
-    } else {
-      btn.textContent = d;
+  <script>
+    // ---- CANVAS SOROBAN ----
+    const canvas = document.getElementById('sorobanBg');
+    let W = window.innerWidth, H = window.innerHeight;
+    function resizeCanvas() {
+      W = window.innerWidth; H = window.innerHeight;
+      canvas.width = W; canvas.height = H;
+      drawSoroban();
     }
-    btn.onclick = () => appendDigit(d);
-    padWrap.appendChild(btn);
-  });
-  currentInputDisplay.onclick = submitAnswer;
-  startQuiz();
-</script>
+    window.addEventListener('resize', resizeCanvas);
+
+    // Soroban model (7 rods, 1 heaven, 4 earth)
+    const rods = 7;
+    const heavenState = Array(rods).fill(false); // false: up, true: down (active)
+    const earthState = Array.from({length: rods}, () => Array(4).fill(false)); // false: down, true: up (active)
+
+    function drawHexBead(ctx, cx, cy, rx, ry, color, border="#003", shadow=true) {
+      ctx.save();
+      ctx.beginPath();
+      for (let i = 0; i < 6; ++i) {
+        const angle = Math.PI/3 * i - Math.PI/6;
+        const x = cx + rx * Math.cos(angle);
+        const y = cy + ry * Math.sin(angle);
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.fillStyle = color;
+      ctx.shadowColor = shadow ? "#222a" : "transparent";
+      ctx.shadowBlur = shadow ? 7 : 0;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = border;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawSoroban() {
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, W, H);
+      // Quiz panel overlay width
+      let leftW = Math.max(240, Math.min(360, W * 0.2));
+      if (W < 768) leftW = 0; // On mobile, panel is at the bottom, ignore
+
+      // Drawing area for abacus
+      const padX = leftW + 25, padY = 50, padXr = 25, padYb = 40;
+      const boxW = W - padX - padXr, boxH = H - padY - padYb;
+      // Layout
+      const rodGap = boxW / (rods + 1), rodY0 = padY+40, rodY1 = padY + boxH-40;
+      const heavenY = padY + 40, earthY0 = padY + boxH/2 + 10;
+      const heavenGap = rodGap, beadRx = rodGap*0.33, beadRy = 26 * (H/900);
+      // Frame
+      ctx.save();
+      ctx.strokeStyle = "#202540"; ctx.lineWidth = 9;
+      ctx.strokeRect(padX-15, padY, boxW+30, boxH);
+      ctx.restore();
+      // Bars
+      ctx.save();
+      ctx.strokeStyle = "#7c80d7"; ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(padX-10, padY+boxH/2); ctx.lineTo(W-padXr+10, padY+boxH/2);
+      ctx.stroke();
+      ctx.restore();
+      // Rods
+      ctx.save();
+      ctx.strokeStyle = "#7173e2"; ctx.lineWidth = 4;
+      for(let i=0; i<rods; ++i) {
+        let x = padX + rodGap*(i+1);
+        ctx.beginPath();
+        ctx.moveTo(x, padY+18);
+        ctx.lineTo(x, H - padYb-18);
+        ctx.stroke();
+      }
+      ctx.restore();
+      // Heaven beads
+      for(let i=0; i<rods; ++i) {
+        let x = padX + rodGap*(i+1);
+        let y = heavenY;
+        let active = heavenState[i];
+        drawHexBead(ctx, x, y, beadRx, beadRy, active ? "#ffe066" : "#21378c");
+        // Light white border if selected
+      }
+      // Earth beads
+      for(let i=0; i<rods; ++i) {
+        let x = padX + rodGap*(i+1);
+        for(let j=0;j<4;++j){
+          let on = earthState[i][j];
+          let y = earthY0 + (j)*beadRy*2.1;
+          drawHexBead(ctx, x, y, beadRx, beadRy, on ? "#ffe066" : "#21378c");
+        }
+      }
+    }
+    // --- Interactivity ---
+    function rodFromXY(x, y) {
+      // Figure out which bead is at location (x, y)
+      let leftW = Math.max(240, Math.min(360, W * 0.2));
+      if (W < 768) leftW = 0;
+      const padX = leftW + 25, padY = 50, padXr = 25, padYb = 40;
+      const boxW = W - padX - padXr, boxH = H - padY - padYb;
+      const rodGap = boxW / (rods + 1);
+      const heavenY = padY + 40, earthY0 = padY + boxH/2 + 10;
+      const beadRx = rodGap*0.33, beadRy = 26 * (H/900);
+      let rodIndex = -1, isHeaven = false, earthIndex = -1;
+      // Heaven
+      for(let i=0; i<rods; ++i){
+        let cx = padX + rodGap*(i+1), cy = heavenY;
+        if (Math.abs(x-cx)<beadRx*1.1 && Math.abs(y-cy)<beadRy*1.1){
+          rodIndex = i; isHeaven = true;
+          return {rodIndex, isHeaven, earthIndex: -1};
+        }
+      }
+      // Earth
+      for(let i=0; i<rods; ++i){
+        let cx = padX + rodGap*(i+1);
+        for(let j=0;j<4;++j){
+          let cy = earthY0 + (j)*beadRy*2.1;
+          if (Math.abs(x-cx)<beadRx*1.1 && Math.abs(y-cy)<beadRy*1.1){
+            rodIndex = i; isHeaven = false; earthIndex = j;
+            return {rodIndex, isHeaven, earthIndex};
+          }
+        }
+      }
+      return null;
+    }
+    let dragging = null, dragStartY = 0, dragBeads = [], dragActive = false;
+    canvas.addEventListener('pointerdown', function(e){
+      const pos = rodFromXY(e.offsetX, e.offsetY);
+      if (!pos) return;
+      if (pos.isHeaven) {
+        dragging = {type: 'heaven', rod: pos.rodIndex};
+        dragStartY = e.offsetY;
+        dragActive = heavenState[pos.rodIndex];
+      } else {
+        dragging = {type:'earth', rod: pos.rodIndex, bead: pos.earthIndex};
+        dragStartY = e.offsetY;
+        dragBeads = [];
+        // Drag all beads above if inactive, or all below if active
+        if (!earthState[pos.rodIndex][pos.earthIndex]) {
+          for(let j=pos.earthIndex;j>=0;--j){
+            if (!earthState[pos.rodIndex][j]) dragBeads.push(j);
+            else break;
+          }
+        } else {
+          for(let j=pos.earthIndex;j<4;++j){
+            if (earthState[pos.rodIndex][j]) dragBeads.push(j);
+            else break;
+          }
+        }
+        dragActive = earthState[pos.rodIndex][pos.earthIndex];
+      }
+    });
+    canvas.addEventListener('pointermove', function(e){
+      if (!dragging) return;
+      if (dragging.type==='heaven'){
+        let dy = e.offsetY - dragStartY;
+        if (!dragActive && dy>30) heavenState[dragging.rod]=true;
+        else if (dragActive && dy<-30) heavenState[dragging.rod]=false;
+        drawSoroban();
+      } else if (dragging.type==='earth'){
+        let dy = e.offsetY - dragStartY;
+        let rod = dragging.rod;
+        if (!dragActive && dy<-30){
+          dragBeads.forEach(j=>earthState[rod][j]=true);
+          drawSoroban();
+        } else if (dragActive && dy>30){
+          dragBeads.forEach(j=>earthState[rod][j]=false);
+          drawSoroban();
+        }
+      }
+    });
+    canvas.addEventListener('pointerup', function(e){
+      dragging = null; dragBeads = [];
+    });
+    canvas.addEventListener('pointercancel', function(e){
+      dragging = null; dragBeads = [];
+    });
+    // Tap: toggle state
+    canvas.addEventListener('pointertap', function(e){
+      const pos = rodFromXY(e.offsetX, e.offsetY);
+      if (!pos) return;
+      if (pos.isHeaven) {
+        heavenState[pos.rodIndex] = !heavenState[pos.rodIndex];
+      } else {
+        earthState[pos.rodIndex][pos.earthIndex] = !earthState[pos.rodIndex][pos.earthIndex];
+      }
+      drawSoroban();
+    });
+    // Fallback for quick click/tap
+    canvas.addEventListener('click', function(e){
+      const pos = rodFromXY(e.offsetX, e.offsetY);
+      if (!pos) return;
+      if (pos.isHeaven) {
+        heavenState[pos.rodIndex] = !heavenState[pos.rodIndex];
+      } else {
+        // Smart snap like Soroban: turn on and all above, off and all below
+        let rod = pos.rodIndex, idx = pos.earthIndex;
+        if (!earthState[rod][idx]){
+          for(let j=idx;j>=0;--j) earthState[rod][j]=true;
+        } else {
+          for(let j=idx;j<4;++j) earthState[rod][j]=false;
+        }
+      }
+      drawSoroban();
+    });
+
+    resizeCanvas();
+
+    // ---- QUIZ PANEL LOGIC ---- (unchanged)
+    const QUESTIONS = [
+      { q: '9 × 25', a: '225' }, { q: '120 + 4', a: '124' },
+      { q: '250 - 10', a: '240' }, { q: '13 + 17', a: '30' },
+      { q: '5 × 9', a: '45' }, { q: '90 - 40', a: '50' },
+      { q: '3 + 4 + 2', a: '9' }, { q: '100 + 23', a: '123' },
+      { q: '80 - 15', a: '65' }, { q: '5 × 6', a: '30' }
+    ];
+    let currentIndex = 0, answers = [], currentInput = '', inputLocked = false, timerInterval, timeLeft = 600;
+    const qNumEl = document.getElementById('qNum'), qTextEl = document.getElementById('qText');
+    const answerEl = document.getElementById('answerDisplay'), sendBtnEl = document.getElementById('sendBtn');
+    const timerEl = document.getElementById('quizTimer'), padContainer = document.getElementById('numpad');
+    function loadQuestion() { const q = QUESTIONS[currentIndex]; qNumEl.textContent = Q${currentIndex+1}; qTextEl.textContent = ${q.q} =; currentInput = ''; inputLocked = false; answerEl.textContent = '0'; sendBtnEl.disabled = false; }
+    function updateTimer() { const m = String(Math.floor(timeLeft/60)).padStart(2,'0'), s = String(timeLeft%60).padStart(2,'0'); timerEl.textContent = Time Left: ${m}:${s}; }
+    function appendDigit(d) { if (inputLocked) return; if (d==='C') currentInput=''; else if(d==='BACK') currentInput=currentInput.slice(0,-1); else currentInput+=d; answerEl.textContent = currentInput||'0'; }
+    function submitAnswer() { if (inputLocked) return; inputLocked=true; answers.push({ question: QUESTIONS[currentIndex].q, correct: QUESTIONS[currentIndex].a, user: currentInput }); sendBtnEl.disabled=true; currentIndex<QUESTIONS.length-1?setTimeout(loadQuestion,200):finishQuiz(); }
+    function finishQuiz(){ clearInterval(timerInterval); localStorage.setItem('sorobanResults', JSON.stringify(answers)); window.location.href='results.html'; }
+    function startQuiz(){ currentIndex=0; answers=[]; timeLeft=600; loadQuestion(); updateTimer(); timerInterval=setInterval(()=>{ timeLeft--; updateTimer(); if(timeLeft<=0) finishQuiz(); },1000); }
+    ['0','1','2','3','4','5','6','7','8','9','C','BACK'].forEach(d=>{ const b=document.createElement('button');
+      if(d==='BACK') b.innerHTML='<svg width="24" height="24" viewBox="0 0 32 32"><g><path d="M6 16 L14 8 H26 Q28 8 28 10 V22 Q28 24 26 24 H14 L6 16 Z" fill="none" stroke="white" stroke-width="2.5" stroke-linejoin="round"/><line x1="17" y1="13" x2="23" y2="19" stroke="white" stroke-width="2.5" stroke-linecap="round"/><line x1="23" y1="13" x2="17" y2="19" stroke="white" stroke-width="2.5" stroke-linecap="round"/></g></svg>';
+      else b.textContent=d; b.addEventListener('click',()=>appendDigit(d)); padContainer.appendChild(b);
+    });
+    sendBtnEl.addEventListener('click',submitAnswer); answerEl.addEventListener('click',submitAnswer); startQuiz();
+    document.getElementById('fullscreenBtn').addEventListener('click', () => {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+      else document.exitFullscreen();
+    });
+  </script>
 </body>
 </html>
